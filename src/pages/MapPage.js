@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import React from "react";
 
-//TODO: Change api KEY
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiamRhdmVsbGFuZWRhZyIsImEiOiJja3Z1MjBiamMxaDJlMm9xcGZmMzI2dW8zIn0.LY2YR5jfbsRx4DwwApEVIg";
+import { useMapBox } from "../hooks/useMapBox";
 
 const defaultPoint = {
   lng: 5,
@@ -12,23 +9,13 @@ const defaultPoint = {
 };
 
 export const MapPage = () => {
-  const mapDiv = useRef();
-  const [setMap] = useState(null);
-
-  useEffect(() => {
-    var map = new mapboxgl.Map({
-      container: mapDiv.current,
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [defaultPoint.lng, defaultPoint.lat],
-      zoom: defaultPoint.zoom,
-    });
-
-    setMap(map);
-  }, []);
-
+  const { setRef, coords } = useMapBox(defaultPoint);
   return (
     <>
-      <div ref={mapDiv} className="mapContainer"></div>
+      <div className="info">
+        Lng: {coords.lng} | Lat: {coords.lat} | zoom: {coords.zoom}
+      </div>
+      <div ref={setRef} className="mapContainer"></div>
     </>
   );
 };
