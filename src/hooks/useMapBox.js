@@ -22,19 +22,22 @@ export const useMapBox = (defaultPoint) => {
 
   const [coords, setCoords] = useState(defaultPoint);
 
-  const addMarker = useCallback((ev) => {
-    const { lng, lat } = ev.lngLat;
+  const addMarker = useCallback((ev, id) => {
+    const { lng, lat } = ev.lngLat || ev;
 
     const marker = new mapboxgl.Marker();
-    marker.id = uuidv4(); // TODO: Validate if the marker already have a ID
+    marker.id = id ?? uuidv4(); // TODO: Validate if the marker already have a ID
     marker.setLngLat([lng, lat]).addTo(mapDiv.current).setDraggable(true);
 
     markers.current[marker.id] = marker;
-    newMarker.current.next({
-      id: marker.id,
-      lng,
-      lat,
-    });
+
+    if (!id) {
+      newMarker.current.next({
+        id: marker.id,
+        lng,
+        lat,
+      });
+    }
 
     marker.on("drag", ({ target }) => {
       const { id } = target;
@@ -42,6 +45,10 @@ export const useMapBox = (defaultPoint) => {
 
       markerMovement.current.next({ id, lng, lat });
     });
+  }, []);
+
+  const updateMarkerLocation = useCallback(({ id, lng, lat }) => {
+    markers.current[id].setLngLat([lng, lat]);
   }, []);
 
   useEffect(() => {
@@ -72,6 +79,7 @@ export const useMapBox = (defaultPoint) => {
 
   return {
     addMarker,
+    updateMarkerLocation,
     coords,
     setRef,
     newMarker$: newMarker.current,
